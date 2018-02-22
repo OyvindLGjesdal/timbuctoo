@@ -1,0 +1,26 @@
+= Update Timbuctoo Resource/Changelist to better match the http://www.openarchives.org/rs/1.1/resourcesync#ChangeList[Resource Sync Specification]
+
+. Problem:
+* Timbuctoo datasets currently have information in fileList.json and log.json that
+do not adequately meet the Resource Sync Specification (though they do maintain a
+resource and change list).
+
+. Result:
+* Timbuctoo properly adheres to the Changelist requirements stated in the
+http://www.openarchives.org/rs/1.1/resourcesync#ChangeList[ResourceSync Specification Documentation].
+
+
+. Approach:
+Addressing points from the documentation:
+
+* "All entries in a Change List must be provided in forward chronological order" : This
+is already maintained in fileList.json and log.json
+
+* "It also has the mandatory from and the optional until attributes to convey
+the temporal interval covered by the Change List" : The "date" property in the current
+Timbuctoo log.json defines the same thing as the "from" property so "date" can be changed
+to "from". An "until" field can be added and updated when a resource is changed the next time.
+
+* "must have the attribute change to convey the nature of the change.
+The value of the change attribute is created, updated, or deleted." : This can be added as
+a new property along with the above mentioned "from" and "until" properties.
