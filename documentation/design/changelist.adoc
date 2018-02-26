@@ -3,14 +3,28 @@
 . Problem:
 * Timbuctoo datasets currently have information in fileList.json and log.json that
 do not adequately meet the Resource Sync Specification (though they do maintain a
-resource and change list).
+resource and change list in a way).
+* Issue 1: Maintaining a resource list in Timbuctoo that can be retrieved.
+* Issue 2: Combining change lists from multiple documents once they are in Timbuctoo as well as exporting them back with
+any changes that have then been made.
 
 . Result:
 * Timbuctoo properly adheres to the Changelist requirements stated in the
 http://www.openarchives.org/rs/1.1/resourcesync#ChangeList[ResourceSync Specification Documentation].
+* An endpoint that can be used to retrieve a resource list from Timbuctoo.
+* Changelists maintained/combined propertly when imported from documents, changed/combined in Timbuctoo and exported.
 
 
 . Approach:
+* Issue 1. Maintaining and retrieving resource list in Timbuctoo: The resource list corresponds to the current state of
+the Berkeley DB store used to store the resources. This means that we can retrieve the resources from the Berkeley DB
+and convert them to string and store them in our resource list file. It is not necessary to maintain a file with a
+continuously updated list of resources as they can be generated from the Berkeley DB store when needed. So an
+endpoint will be created (Eg. @get(/resources/<dataset>/resourcelist) ) that when triggered, will get the resources from the Berkeley
+store and return them as a resource list.
+
+* Issue 2: Changelists from different documents:
+
 Addressing points from the documentation:
 
 * "All entries in a Change List must be provided in forward chronological order" : This
@@ -24,3 +38,6 @@ to "from". An "until" field can be added and updated when a resource is changed 
 * "must have the attribute change to convey the nature of the change.
 The value of the change attribute is created, updated, or deleted." : This can be added as
 a new property along with the above mentioned "from" and "until" properties.
+
+
+
