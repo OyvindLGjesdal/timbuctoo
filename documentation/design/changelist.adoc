@@ -1,9 +1,8 @@
-= Update Timbuctoo Resource/Changelist
+= Updates to Timbuctoo Resource/Changelist
 
 . Problem:
 * Timbuctoo datasets currently have information in fileList.json and log.json that
-do not adequately meet the Resource Sync Specification (though they do maintain a
-resource and change list in a way).
+do not adequately meet the Resource Sync Specification
 * Issue 1: Maintaining a resource list in Timbuctoo that can be retrieved.
 * Issue 2: Combining change lists from multiple documents once they are in Timbuctoo as well as exporting them back with
 any changes that have then been made.
@@ -12,7 +11,7 @@ any changes that have then been made.
 * Timbuctoo properly adheres to the Changelist requirements stated in the
 http://www.openarchives.org/rs/1.1/resourcesync#ChangeList[ResourceSync Specification Documentation].
 * An endpoint that can be used to retrieve a resource list from Timbuctoo.
-* Changelists maintained/combined propertly when imported from documents, changed/combined in Timbuctoo and exported.
+* Changelists maintained/combined propertly when imported from documents, updated in Timbuctoo and exported.
 
 
 . Approach:
@@ -36,24 +35,15 @@ when importing and exporting the same dataset multiple times.
 Note 2: While it's not a problem that multiple resources might have the same triples and these can be duplicated in
 the Timbuctoo dataset, the data can be marked during import to prevent these (feature for later).
 
-Currently we have file log.json and fileList.json for listing resources/changes.
-Filelist.json can be left in the same format. The log.json file will need to be restructured so that we have
-information on which changelists are associated with which resource and also to associate files from added
-resource to the generated virtual dataset.
+Currently we have file log.json and fileList.json for listing resources.
 
+A new field 'isPatch' will  be added to each entry in fileList.json (the entries will otherwise be the same as before).
+This 'isPatch' field will be a boolean and will determine if the listen resource is a patch or not.
 
-
-(Old info) Addressing points from the documentation:
-
-
-* "It also has the mandatory from and the optional until attributes to convey
-the temporal interval covered by the Change List" : The "date" property in the current
-Timbuctoo log.json defines the same thing as the "from" property so "date" can be changed
-to "from". An "until" field can be added and updated when a resource is changed the next time.
-
-* "must have the attribute change to convey the nature of the change.
-The value of the change attribute is created, updated, or deleted." : This can be added as
-a new property along with the above mentioned "from" and "until" properties.
+In log.json, for each entry we will add a 'resource' field. The value for 'resource' field for changelist entries will
+refer to the resource that it is a changelist for (Eg: 'resource' : 'A.nq' entry will mean that the changelist is for
+resource A.nq). Now, to find all the change patches for a resource 'A.nq' we can go over the entries in the log.json
+file and disregard all that do not have that resource in it's entry.
 
 
 
