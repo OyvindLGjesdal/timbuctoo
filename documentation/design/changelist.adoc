@@ -1,4 +1,4 @@
-= Update Timbuctoo Resource/Changelist to better match the http://www.openarchives.org/rs/1.1/resourcesync#ChangeList[Resource Sync Specification]
+= Update Timbuctoo Resource/Changelist
 
 . Problem:
 * Timbuctoo datasets currently have information in fileList.json and log.json that
@@ -20,15 +20,31 @@ http://www.openarchives.org/rs/1.1/resourcesync#ChangeList[ResourceSync Specific
 the Berkeley DB store used to store the resources. This means that we can retrieve the resources from the Berkeley DB
 and convert them to string and store them in our resource list file. It is not necessary to maintain a file with a
 continuously updated list of resources as they can be generated from the Berkeley DB store when needed. So an
-endpoint will be created (Eg. @get(/resources/<dataset>/resourcelist) ) that when triggered, will get the resources from the Berkeley
-store and return them as a resource list.
+endpoint will be created (Eg. @get(/resources/<dataset>/resourcelist) ) that when triggered, will get the resources
+from the Berkeley store and return them as a resource list.
 
 * Issue 2: Changelists from different documents:
+When two or more resources are added they can have their own changelists that are imported
+to Timbuctoo. A new (virtual) dataset (.nq) is created when the import happens and added to the resourcelist.
+Then all changes that are made in Timbuctoo will be maintained in a seperate changelist.
+When an export is requested we will return the current Timbuctoo dataset and the original files (that Timbuctoo keeps
+without alterations).
 
-Addressing points from the documentation:
+Note 1: The generated name for the dataset created after import should be unique or otherwise there can be conflicts
+when importing and exporting the same dataset multiple times.
 
-* "All entries in a Change List must be provided in forward chronological order" : This
-is already maintained in fileList.json and log.json
+Note 2: While it's not a problem that multiple resources might have the same triples and these can be duplicated in
+the Timbuctoo dataset, the data can be marked during import to prevent these (feature for later).
+
+Currently we have file log.json and fileList.json for listing resources/changes.
+Filelist.json can be left in the same format. The log.json file will need to be restructured so that we have
+information on which changelists are associated with which resource and also to associate files from added
+resource to the generated virtual dataset.
+
+
+
+(Old info) Addressing points from the documentation:
+
 
 * "It also has the mandatory from and the optional until attributes to convey
 the temporal interval covered by the Change List" : The "date" property in the current
