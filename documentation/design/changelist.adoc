@@ -31,8 +31,10 @@ without alterations).
 Note 1: The generated name for the dataset created after import should be unique or otherwise there can be conflicts
 when importing and exporting the same dataset multiple times.
 +
-Note 2: While it's not a problem that multiple resources might have the same triples and these can be duplicated in
-the Timbuctoo dataset, the data can be marked during import to prevent these (feature for later).
+Note 2: While it's not a problem that multiple resources might have the same triples and these can be duplicated in the Timbuctoo dataset, the data can be marked during import to prevent these (feature for later).
+
+[WARNING]
+This doesn't work. If imported resourceA.nq contains the triple <A> <likes> <B> and we retract that, it should get retracted from both mainResource.nq _and_ resourceA.nq
 
 * Issue 3: Keeping patches out of the ResourceList
 Currently we have file log.json and fileList.json for listing resources.
