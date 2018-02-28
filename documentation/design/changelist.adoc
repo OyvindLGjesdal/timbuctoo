@@ -1,45 +1,45 @@
 = Updates to Timbuctoo Resource/Changelist
 
 . Problem:
-* Timbuctoo datasets currently have information in fileList.json and log.json that
-do not adequately meet the Resource Sync Specification
-* Issue 1: Maintaining a resource list in Timbuctoo that can be retrieved.
-* Issue 2: Combining change lists from multiple documents once they are in Timbuctoo as well as exporting them back with
-any changes that have then been made.
+* Timbuctoo datasets currently have information in fileList.json and log.json that do contain enough information to generate proper changeLists according to the Resource Sync Specification. (we currently generate resourceLists only)
+* Issue 1: Instead of storing all changes in the resourceList we want to start using both the changeList and the resourceList. The resourcelist should contain all files except the ones that are used as rdf patches. It should also contain a resource that represents the dataset as is.
+* Issue 2: When we download an external resourcesync dataset it may contain multiple changeLists. The log.json contains 1 ordered list of changes. We need to be able to go from the multiple changelists to the one log.json and then make sure that our generated resourcesync sitemaps still contain separate changeLists (i.e. make them roundtrippable)
 
 . Result:
 * Timbuctoo properly adheres to the Changelist requirements stated in the
 http://www.openarchives.org/rs/1.1/resourcesync#ChangeList[ResourceSync Specification Documentation].
-* An endpoint that can be used to retrieve a resource list from Timbuctoo.
-* Changelists maintained/combined propertly when imported from documents, updated in Timbuctoo and exported.
-
+* An endpoint that can be used to retrieve a resource list from Timbuctoo that no longer contains the patches but does include a resource representing the dataset as it is now.
+* Changelists maintained/combined properly when imported from documents, updated in Timbuctoo and exported.
 
 . Approach:
-* Issue 1. Maintaining and retrieving resource list in Timbuctoo: The resource list corresponds to the current state of
-the Berkeley DB store used to store the resources. This means that we can retrieve the resources from the Berkeley DB
-and convert them to string and store them in our resource list file. It is not necessary to maintain a file with a
-continuously updated list of resources as they can be generated from the Berkeley DB store when needed. So an
-endpoint will be created (Eg. @get(/resources/<dataset>/resourcelist) ) that when triggered, will get the resources
-from the Berkeley store and return them as a resource list.
+* Issue 1. Maintaining and retrieving resource list in Timbuctoo: 
+The resource list should get one extra link that contains the current state of the dataset. 
+We can hardcode one extra link that points to an endpoint that contains the serialized data from the TripleStore.
+It is not necessary to maintain a file with a continuously updated list of resources as they can be generated from the Berkeley DB store when needed.
+So an endpoint will be created (Eg. @get(/resources/<dataset>/mainResource.nq) ) that will return the data from the Berkeley  TripleStore and return them as an nquad or turtle file.
++
+Note 1: The resourceList should put this file under a URI that cannot overlap with the downloaded resources from an externally downloaded dataSet. 
+We should also take care that a dataSet downloaded from a different timbuctoo does not result in two mainResource's
 
 * Issue 2: Changelists from different documents:
-When two or more resources are added they can have their own changelists that are imported
-to Timbuctoo. A new (virtual) dataset (.nq) is created when the import happens and added to the resourcelist.
-Then all changes that are made in Timbuctoo will be maintained in a seperate changelist.
+When two or more resources are added they can have their own changelists that are imported to Timbuctoo. 
+As per Issue one, a new (virtual) dataset (mainResource.nq) is created when the import happens and added to the resourcelist.
+All changes that are made in Timbuctoo will be maintained in a seperate changelist.
 When an export is requested we will return the current Timbuctoo dataset and the original files (that Timbuctoo keeps
 without alterations).
-
++
 Note 1: The generated name for the dataset created after import should be unique or otherwise there can be conflicts
 when importing and exporting the same dataset multiple times.
-
++
 Note 2: While it's not a problem that multiple resources might have the same triples and these can be duplicated in
 the Timbuctoo dataset, the data can be marked during import to prevent these (feature for later).
 
+* Issue 3: Keeping patches out of the ResourceList
 Currently we have file log.json and fileList.json for listing resources.
-
++
 A new field 'isPatch' will  be added to each entry in fileList.json (the entries will otherwise be the same as before).
 This 'isPatch' field will be a boolean and will determine if the listen resource is a patch or not.
-
++
 In log.json, for each entry we will add a 'resource' field. The value for 'resource' field for changelist entries will
 refer to the resource that it is a changelist for (Eg: 'resource' : 'A.nq' entry will mean that the changelist is for
 resource A.nq). Now, to find all the change patches for a resource 'A.nq' we can go over the entries in the log.json
