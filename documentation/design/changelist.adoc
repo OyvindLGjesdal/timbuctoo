@@ -33,8 +33,10 @@ when importing and exporting the same dataset multiple times.
 +
 Note 2: There is an issue with retractions. If imported resourceA.nq contains the triple <A> <likes> <B>
 and we retract that, it should get retracted from both mainResource.nq _and_ resourceA.nq. To get around this problem,
-we are going to require that any change that is done in Timbuctoo will be within the change logs for the file
-Dataset.nq only. We will thus also require that all datasets to be imported contain a file Dataset.nq.
+we are going to require that any change that is done in Timbuctoo will be within the change logs for the "Dataset" rdf
+(any supported rdf format) file only. We will thus require that all datasets to be imported to Timbuctoo have a rdf file
+ named "Dataset" that will be the only file that is imported to Timbuctoo (and then all further changed within Timbuctoo
+  will be for this). Users can have extra files but they will simply be stored in the filesystem.
 
 * Issue 3: Keeping patches out of the ResourceList
 Currently we have file log.json and fileList.json for listing resources.
